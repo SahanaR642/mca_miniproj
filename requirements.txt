@@ -1,0 +1,7 @@
+streamlit
+googletrans==4.0.0-rc1
+speechrecognition
+pyttsx3
+pydub
+sounddevice
+scipy
