@@ -1,11 +1,7 @@
 import streamlit as st
 import speech_recognition as sr
-import pyttsx3
 import os
 import tempfile
-import sounddevice as sd
-import scipy.io.wavfile as wav
-import time
 import traceback
 from googletrans import Translator
 from pydub import AudioSegment
@@ -32,20 +28,16 @@ target_languages = {
     "Bengali": "bn"
 }
 
-def SpeakNow(command):
-    try:
-        voice = pyttsx3.init()
-        voice.say(command)
-        voice.runAndWait()
-    except Exception as e:
-        st.error(f"Error speaking text: {str(e)}")
-
 # Convert audio to WAV
 def convert_to_wav(file_path):
-    wav_path = os.path.splitext(file_path)[0] + "_converted.wav"
-    audio = AudioSegment.from_file(file_path)
-    audio.export(wav_path, format="wav")
-    return wav_path
+    try:
+        wav_path = os.path.splitext(file_path)[0] + "_converted.wav"
+        audio = AudioSegment.from_file(file_path)
+        audio.export(wav_path, format="wav")
+        return wav_path
+    except Exception as e:
+        st.error(f"Error converting audio: {str(e)}")
+        return None
 
 # Recognize and translate
 def recognize_and_translate(audio_file, source_lang_code, target_lang_code):
@@ -57,7 +49,6 @@ def recognize_and_translate(audio_file, source_lang_code, target_lang_code):
         text1 = recognizer.recognize_google(audio, language=source_lang_code)
         st.success(f"Recognized Speech ({source_lang_code}):")
         st.markdown(f"<div class='block-recognised'>{text1}</div>", unsafe_allow_html=True)
-
 
         translator = Translator()
         translated = translator.translate(text1, src=source_lang_code.split('-')[0], dest=target_lang_code)
@@ -78,7 +69,10 @@ def recognize_and_translate(audio_file, source_lang_code, target_lang_code):
 
 # Streamlit UI
 def run_speech_to_text():
-    st.title("🎤 Speech-to-Text → Translation (Manual Language Selection)")
+    st.title("🎤 Speech-to-Text → Translation")
+    
+    # Show warning about cloud limitations
+    st.warning("⚠️ Note: Live recording is not available in cloud deployment. Please upload audio files instead.")
 
     # Manual language selections
     source_lang = st.selectbox("Select Source Language:", list(languages.keys()))
@@ -87,52 +81,39 @@ def run_speech_to_text():
     target_lang = st.selectbox("Select Target Language:", list(target_languages.keys()))
     target_lang_code = target_languages[target_lang]
 
-    uploaded_file = st.file_uploader("Upload Audio File", type=["wav", "mp3", "ogg", "flac", "aac", "m4a", "webm", "wma"])
-
-    st.markdown("### OR Record Audio")
-    duration = st.slider("Duration (seconds)", 1, 10, 5)
-    record_button = st.button("🎙️ Start Recording")
-
-    audio_path = None
+    uploaded_file = st.file_uploader("Upload Audio File", type=["wav", "mp3", "ogg", "flac", "aac", "m4a"])
 
     if uploaded_file is not None:
-        with tempfile.NamedTemporaryFile(delete=False, suffix=uploaded_file.name[-4:]) as tmp_file:
+        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{uploaded_file.name.split('.')[-1]}") as tmp_file:
             tmp_file.write(uploaded_file.read())
             raw_audio_path = tmp_file.name
-        audio_path = convert_to_wav(raw_audio_path)
-        st.success("Audio uploaded and converted!")
+        
+        # Convert to WAV if needed
+        if uploaded_file.name.endswith('.wav'):
+            audio_path = raw_audio_path
+        else:
+            audio_path = convert_to_wav(raw_audio_path)
+        
+        if audio_path:
+            st.success("Audio uploaded and processed!")
+            st.info("Processing audio...")
+            original_text, translated_text = recognize_and_translate(audio_path, source_lang_code, target_lang_code)
 
-    elif record_button:
-        st.info(f"Recording for {duration} seconds...")
-        try:
-            sample_rate = 44100
-            recording = sd.rec(int(duration * sample_rate), samplerate=sample_rate, channels=1, dtype='int16')
-            st.progress(0)
-            for i in range(duration):
-                time.sleep(1)
-                st.progress((i + 1) / duration)
-            sd.wait()
-            audio_path = os.path.join(tempfile.gettempdir(), f"recorded_{int(time.time())}.wav")
-            wav.write(audio_path, sample_rate, recording)
-            st.success("Recording complete.")
-        except Exception as e:
-            st.error(f"Recording failed: {str(e)}")
-            return
+            if original_text:
+                st.markdown(f"### 📝 Recognized Speech ({source_lang})")
+                st.code(original_text)
 
-    if audio_path:
-        st.info("Processing audio...")
-        original_text, translated_text = recognize_and_translate(audio_path, source_lang_code, target_lang_code)
-
-        if original_text:
-            st.markdown(f"### 📝 Recognized Speech ({source_lang})")
-            st.code( original_text)
-
-        if translated_text:
-            st.markdown(f"### 🌐 Translated Text ({target_lang})")
-            st.code(translated_text)
-
-    
-    
+            if translated_text:
+                st.markdown(f"### 🌐 Translated Text ({target_lang})")
+                st.code(translated_text)
+            
+            # Cleanup
+            try:
+                os.unlink(raw_audio_path)
+                if audio_path != raw_audio_path:
+                    os.unlink(audio_path)
+            except:
+                pass
 
 if __name__ == "__main__":
     run_speech_to_text()

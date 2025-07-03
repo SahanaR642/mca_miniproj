@@ -36,7 +36,7 @@ def run_language_translator():
         st.session_state.translated_text = ""
         st.session_state.detected_language = ""
         st.session_state.selected_language = "choose language"
-        st.experimental_rerun()
+        st.rerun()  # Updated from deprecated st.experimental_rerun()
 
     if translate_button:
         if input_value.strip():
@@ -74,4 +74,4 @@ def run_language_translator():
 
     if st.session_state.translated_text:
         st.write("Translated Text:")
-        st.text_area("", st.session_state.translated_text, height=150)
+        st.text_area("", st.session_state.translated_text, height=150, key="output_text")

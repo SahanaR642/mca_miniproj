@@ -2,6 +2,7 @@ import streamlit as st
 from gtts import gTTS
 from googletrans import Translator
 import tempfile
+import os
 
 def run_text_to_speech():
     st.title("Text-to-Speech with Translation")
@@ -32,7 +33,7 @@ def run_text_to_speech():
 
     if clear_button:
         st.session_state.input_text = ""
-        st.experimental_rerun()
+        st.rerun()  # Updated from deprecated st.experimental_rerun()
 
     if play_button:
         if text.strip() == "":
@@ -50,13 +51,23 @@ def run_text_to_speech():
                     return
 
                 st.markdown(f"### Translated Text in {selected_language}:")
-                st.text_area("Translated Text", value=translated_text, height=150)
+                st.text_area("Translated Text", value=translated_text, height=150, key="translated_output")
 
                 try:
                     tts = gTTS(text=translated_text, lang=language_code, slow=False)
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".mp3") as tmp_file:
                         tts.save(tmp_file.name)
-                        st.audio(tmp_file.name, format='audio/mp3')
+                        # Read the file and display it
+                        with open(tmp_file.name, 'rb') as audio_file:
+                            audio_bytes = audio_file.read()
+                            st.audio(audio_bytes, format='audio/mp3')
+                        
+                        # Clean up the temporary file
+                        try:
+                            os.unlink(tmp_file.name)
+                        except:
+                            pass
+                            
                 except Exception as e:
                     st.error(f"Text-to-Speech failed: {e}")
                     return

@@ -1,8 +1,10 @@
-streamlit
-deep-translator
-speechrecognition
-pyttsx3
-pydub
-sounddevice
-scipy
-gtts
+streamlit==1.28.0
+googletrans==4.0.0rc1
+deep-translator==1.11.4
+speechrecognition==3.10.0
+gtts==2.3.2
+pydub==0.25.1
+# Remove audio-related dependencies that don't work in cloud
+# pyttsx3  # Not supported in cloud environments
+# sounddevice  # Requires system audio drivers
+# scipy  # Heavy dependency, not needed for basic functionality

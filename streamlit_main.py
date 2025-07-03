@@ -66,10 +66,9 @@ def main():
             border-radius: 6px;
             font-size: 0.95rem;
             white-space: pre-wrap;
-            color: #000;               /* <‑‑‑ NEW: black text */
+            color: #000;
         }
 
-/* pale‑green card */
         .block-translated {
            background: #e7ffe8;
            border: 1px solid #b9ffbb;
@@ -77,15 +76,15 @@ def main():
            border-radius: 6px;
            font-size: 0.95rem;
            white-space: pre-wrap;
-           color: #000;               /* <‑‑‑ NEW: black text */
+           color: #000;
          }
-        
-      
         </style>
     """, unsafe_allow_html=True)
 
-    st.sidebar.title("Language Tools ")
-    st.sidebar.image("img1.jpg", width=300)
+    st.sidebar.title("Language Tools")
+    
+    # Remove the image reference since it may not exist
+    # st.sidebar.image("img1.jpg", width=300)
 
     task = st.sidebar.selectbox(
         "Choose your task",
@@ -97,7 +96,7 @@ def main():
         This application provides various language tools:
         - **Language Translator**: Translate text between different languages
         - **Text-to-Speech**: Convert text to spoken audio in different languages
-        - **Speech-to-Text**: Convert spoken language to text
+        - **Speech-to-Text**: Convert spoken language to text (upload audio files)
         """)
 
     try:
@@ -109,6 +108,7 @@ def main():
             run_speech_to_text()
     except Exception as e:
         st.error(f"An error occurred while running the module: {e}")
+        st.error("Please check the console for more details.")
 
     st.markdown("---")
     st.markdown("Made with ❤️ using Streamlit")
