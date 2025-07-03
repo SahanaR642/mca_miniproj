@@ -54,13 +54,19 @@ def recognize_and_translate(audio_file, source_lang_code, target_lang_code):
         with sr.AudioFile(audio_file) as source:
             audio = recognizer.record(source)
 
-        text = recognizer.recognize_google(audio, language=source_lang_code)
-        st.success(f"Recognized Speech ({source_lang_code}): {text}")
+        text1 = recognizer.recognize_google(audio, language=source_lang_code)
+        st.success(f"Recognized Speech ({source_lang_code}):")
+        st.markdown(f"<div class='block-recognised'>{text1}</div>", unsafe_allow_html=True)
+
 
         translator = Translator()
-        translated = translator.translate(text, src=source_lang_code.split('-')[0], dest=target_lang_code)
-        st.info(f"Translated Text ({translated.dest}): {translated.text}")
-        return text, translated.text
+        translated = translator.translate(text1, src=source_lang_code.split('-')[0], dest=target_lang_code)
+        text = translated.text
+
+        st.info(f"Translated Text ({translated.dest}): ")
+        st.markdown(f"<div class='block-recognised'>{text}</div>", unsafe_allow_html=True)
+
+        return text1, text 
 
     except sr.UnknownValueError:
         st.error("Could not understand the audio.")
@@ -84,7 +90,7 @@ def run_speech_to_text():
     uploaded_file = st.file_uploader("Upload Audio File", type=["wav", "mp3", "ogg", "flac", "aac", "m4a", "webm", "wma"])
 
     st.markdown("### OR Record Audio")
-    duration = st.slider("Duration (seconds)", 1, 10, 3)
+    duration = st.slider("Duration (seconds)", 1, 10, 5)
     record_button = st.button("🎙️ Start Recording")
 
     audio_path = None
@@ -119,20 +125,14 @@ def run_speech_to_text():
 
         if original_text:
             st.markdown(f"### 📝 Recognized Speech ({source_lang})")
-            st.code(original_text)
+            st.code( original_text)
 
         if translated_text:
             st.markdown(f"### 🌐 Translated Text ({target_lang})")
             st.code(translated_text)
 
-        col1, col2 = st.columns(2)
-        with col1:
-            if st.button("🔊 Speak Original"):
-                SpeakNow(original_text)
-        with col2:
-            if st.button("🗣️ Speak Translation"):
-                SpeakNow(translated_text)
-
+    
+    
 
 if __name__ == "__main__":
     run_speech_to_text()

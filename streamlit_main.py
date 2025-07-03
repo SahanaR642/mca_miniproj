@@ -11,26 +11,79 @@ def main():
         initial_sidebar_state="expanded"
     )
 
-    
+    # Elegant Official Style Theme
     st.markdown("""
         <style>
+        html, body, .stApp {
+            background-color: #fbfbfb;
+            color: #212529;
+            font-family: "Segoe UI", sans-serif;
+        }
+
+        .stSidebar {
+            background-color: #062249;
+        }
+
+        .stSidebar h1, .stSidebar h2, .stSidebar h3, .stSidebar h4, .stSidebar h5,
+        .stSidebar h6, .stSidebar p, .stSidebar div {
+            color: #ffffff !important;
+        }
+
         .stButton > button {
-            background-color: #0d6efd;
+            background-color: #062249;
             color: white;
             border: none;
             padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 15px;
         }
+
         .stButton > button:hover {
             background-color: #0b5ed7;
-            color: white;
         }
+
+        .stSelectbox > div > div,
+        .stTextInput > div > input,
+        .stTextArea > div > textarea {
+            background-color: #6fa0c8;
+            color: #212529;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+        }
+
+        .stMarkdown h1, .stMarkdown h2, .stMarkdown h3 {
+            color: #1a1a1a;
+        }
+
+        .css-1v3fvcr, .css-1d391kg {
+            background-color: transparent !important;
+        }
+        .block-recognised {
+            background: #e8f4ff;
+            border: 1px solid #b6dcff;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            white-space: pre-wrap;
+            color: #000;               /* <‑‑‑ NEW: black text */
+        }
+
+/* pale‑green card */
+        .block-translated {
+           background: #e7ffe8;
+           border: 1px solid #b9ffbb;
+           padding: 12px;
+           border-radius: 6px;
+           font-size: 0.95rem;
+           white-space: pre-wrap;
+           color: #000;               /* <‑‑‑ NEW: black text */
+         }
+        
+      
         </style>
     """, unsafe_allow_html=True)
 
-  
     st.sidebar.title("Language Tools ")
     st.sidebar.image("img1.jpg", width=300)
 
