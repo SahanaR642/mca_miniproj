@@ -1,7 +1,8 @@
 streamlit
-googletrans==4.0.0-rc1
+deep-translator
 speechrecognition
 pyttsx3
 pydub
 sounddevice
 scipy
+gtts
